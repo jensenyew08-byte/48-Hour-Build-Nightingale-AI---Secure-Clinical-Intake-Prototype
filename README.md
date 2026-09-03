@@ -14,6 +14,7 @@ Python 3.9+ installed.
 Ollama installed and running on your machine.
 
 2. Installation
+   
 Clone this repository and install the required Python packages:
 
 PowerShell
@@ -28,6 +29,7 @@ ollama run llama3.2
 Leave this terminal open in the background.
 
 4. Running the Application
+   
 Open a new terminal window in the project directory and run the terminal prototype:
 
 PowerShell
@@ -35,7 +37,9 @@ python test.py
 
 
 Where Redaction Happens
+
 PHI redaction is strictly enforced server-side before any data is transmitted to the LLM[cite: 1]. The redact_phi() function intercepts incoming strings and applies regex-based masking for Southeast Asian naming conventions, phone numbers, and NRIC/ID formats (e.g., replacing them with [REDACTED_NAME])[cite: 1]. The raw PHI never enters the LLM prompt and is scrubbed from all generated system audit logs[cite: 1].
 
 RBAC (Role-Based Access Control) Enforcement
+
 Access control is enforced at the state level[cite: 1]. In a full production deployment, RBAC is handled via backend server checks where a LeadSession cannot access a PatientSession without passing through the Authentication and Consent gateway[cite: 1]. Patient users are strictly isolated to their own internal_id, while simulated staff/clinician accounts have scoped access to the Escalations_DB[cite: 1]. Unauthorized access attempts are rejected before state retrieval[cite: 1].
