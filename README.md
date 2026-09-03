@@ -2,7 +2,7 @@
 **PROTOTYPE**
 Nightingale AI - Secure Clinical Intake Prototype
 
-**DISCLAIMER: This software is a prototype developed for the Nightingale 48-Hour Engineering Challenge. It is not intended for actual clinical, diagnostic, or emergency use. The AI is strictly non-diagnostic and programmed to escalate potential medical emergencies. All data processed in this repository should be synthetic; do not input real Personal Health Information (PHI). This software is also my first attempt in making an AI. The code does not contain a GUI and instead runs in a terminal window. Code written is either from online Internet resources or AI. Use caution when trying out the software.
+**DISCLAIMER: This software is a prototype developed for the Nightingale 48-Hour Engineering Challenge. It is not intended for actual clinical, diagnostic, or emergency use. The AI is strictly non-diagnostic and programmed to escalate potential medical emergencies. All data processed in this repository should be synthetic; do not input real Personal Health Information (PHI). The AI runs locally and is not connected to any online services. This software is also my first attempt in making an AI. The code does not contain a GUI and instead runs in a terminal window. Code written is referred either from online Internet resources or AI. Use caution when trying out the software.
 
 Setup & Run Instructions
 This application uses a local LLM via Ollama to ensure complete data privacy and zero API latency.
