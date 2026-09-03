@@ -1,0 +1,41 @@
+## Architecture
+
+This prototype operates as a single-threaded Python terminal application that processes input synchronously without web frameworks or network latency . It uses a local Large Language Model (Ollama running Llama 3.2) via the OpenAI SDK.
+
+The data flow per turn is strictly ordered:
+
+1. **Input:** The user types a message in the terminal.
+2. **Redaction Pipeline:** A regex engine scrubs standard PHI (phone numbers, NRIC/IDs, and names) before the LLM sees the text.
+3. **Risk Gating:** The redacted string is checked against a hardcoded list of emergency phrases (e.g., "crushing chest pain"). If a match is found, processing stops and escalation is triggered.
+4. **LLM Inference:** The prompt is sent to the local LLM. A strict system prompt forces the model to return a JSON object containing a non-diagnostic reply and lists of extracted facts.
+5. **State Update & Output:** The extracted facts are appended to the application's state, and the AI's safe response is printed to the terminal.
+
+## Data Schema
+
+The system uses a simple in-memory Python dictionary named `patient_profile` to simulate a database.
+
+* **Messages ↔ Profile:** Raw chat logs are not permanently stored as conversation history. Instead, the LLM dynamically extracts facts, which are stored in the `symptoms` and `medications` arrays within the profile.
+* **Profile ↔ Citations (Provenance):** When a symptom or medication is extracted, it is saved as a dictionary object containing the `value` (e.g., "headache") and a `provenance_time` timestamp. This links the extracted fact directly to the exact turn it was mentioned.
+* **Profile ↔ Escalations:** Escalation is controlled by the `escalated` boolean. When the risk logic detects an emergency, `escalated` is set to `True`, which locks the chat loop and prints a full JSON dump of the `patient_profile`.
+* **Clinician Module Attachment:** A future clinician dashboard would simply parse the JSON dump of the `patient_profile`. Clinicians would read the structured `symptoms` and `medications` arrays rather than scrolling through raw message threads.
+
+## Channel Considerations & Ethics
+
+[TO BE DETERMINED IN A FUTURE TIME]
+
+## Assumptions & First-Principles Thinking
+
+* **Regex beats LLMs for PHI:** Assuming that asking an LLM to remove names and ID numbers is too risky. A hardcoded regular expression pipeline is faster and guarantees zero leakage of defined patterns.
+* **Hardcoded Risk is Safer:** Assuming that LLMs cannot be fully trusted to triage life-threatening emergencies. The system checks strings for exact emergency phrases before the AI is even invoked.
+* **Local processing equals absolute privacy:** Using a local Ollama server means patient data never leaves the physical machine. (This might change in a future project)
+
+## Trade-offs & Scope Cuts
+
+* **Cut Web Framework & Frontend:** Removed the FastAPI backend and React frontend to deliver a fully functional, bug-free terminal script. This trade-off ensured I could successfully demonstrate the core engineering challenges (redaction, gating, JSON extraction) within the 48-hour time constraint.
+* **Cut Persistent Database:** Opted for an in-memory dictionary instead of setting up SQL/NoSQL. Database configuration and schema migrations would have consumed time better spent refining the LLM's non-diagnostic guardrails.
+
+## VoiceAI Strategy
+
+Because the core architecture relies on processing raw text, integrating audio requires a single microservice at the ingestion layer.
+
+An audio payload would be passed to a Speech-to-Text model (like Whisper), which generates a text transcript and an `audio_clip_id`. This transcript would then be passed into the exact same `redact_phi` and LLM evaluation pipeline used in the terminal prototype. The `audio_clip_id` would be appended alongside the `provenance_time` in the state dictionary, allowing a clinician to click a symptom and hear the exact audio snippet of the patient describing it.
